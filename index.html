@@ -44,47 +44,34 @@
         }
 
         .logo {
-            font-size: 64px;
-            margin-bottom: 20px;
-            animation: pulse 2s ease-in-out infinite;
+            font-size: 80px;
+            margin-bottom: 24px;
+            filter: drop-shadow(0 4px 12px rgba(151, 89, 196, 0.3));
+            animation: float 3s ease-in-out infinite;
         }
 
-        @keyframes pulse {
+        @keyframes float {
             0%, 100% {
-                transform: scale(1);
+                transform: translateY(0px);
             }
             50% {
-                transform: scale(1.1);
+                transform: translateY(-20px);
             }
         }
 
         h1 {
             color: #9759C4;
-            font-size: 28px;
-            margin-bottom: 12px;
+            font-size: 32px;
+            margin-bottom: 16px;
             font-weight: 700;
+            letter-spacing: -0.5px;
         }
 
         p {
-            color: #545454;
+            color: #9C9C9C;
             font-size: 16px;
-            margin-bottom: 24px;
+            margin-bottom: 8px;
             line-height: 1.6;
-        }
-
-        .spinner {
-            width: 50px;
-            height: 50px;
-            margin: 20px auto;
-            border: 4px solid #E1BEE7;
-            border-top: 4px solid #9759C4;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
 
         .fallback-btn {
@@ -153,41 +140,36 @@
         }
 
         #status {
-            color: #27AA1A;
-            font-weight: 600;
-            margin-top: 16px;
-            font-size: 14px;
+            color: #9759C4;
+            font-weight: 500;
+            margin-top: 20px;
+            font-size: 15px;
+            min-height: 20px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="logo">🚀</div>
-        <h1>Opening Creatoo App...</h1>
-        <p id="message">Please wait while we redirect you</p>
+        <h1 class="gradient-text">Opening Creatoo</h1>
+        <p id="message">Please wait a moment</p>
         
-        <div class="spinner"></div>
+        <div class="dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
         
         <p id="status"></p>
 
         <a href="#" id="fallbackBtn" class="fallback-btn" style="display: none;">
-            Open in Play Store
+            Open Play Store
         </a>
-
-        <div class="info-box">
-            <p><strong>App installed?</strong> It will open automatically</p>
-            <p><strong>Don't have the app?</strong> You'll be redirected to Play Store</p>
-        </div>
     </div>
 
     <script>
-        // Get URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const screen = urlParams.get('screen') || 'home';
-        const id = urlParams.get('id') || '';
-
-        // Build deep link URL
-        const deepLink = `creatoo://open?screen=${screen}${id ? '&id=' + id : ''}`;
+        // Simple deep link - just opens the app
+        const deepLink = 'creatoo://open';
         
         // Play Store URL
         const playStoreUrl = 'https://play.google.com/store/apps/details?id=com.creatoo.app';
@@ -199,20 +181,18 @@
 
         // Log for debugging
         console.log('Deep Link:', deepLink);
-        console.log('Screen:', screen);
-        console.log('ID:', id);
 
         // Function to attempt app opening
         function attemptAppOpen() {
-            statusEl.textContent = 'Attempting to open app...';
+            statusEl.textContent = '✨ Opening app...';
             
             // Try to open the app
             window.location.href = deepLink;
 
             // Set a timeout to redirect to Play Store if app doesn't open
             setTimeout(() => {
-                statusEl.textContent = 'App not detected. Redirecting to Play Store...';
-                messageEl.textContent = 'Taking you to Google Play Store';
+                statusEl.textContent = '📲 Redirecting to Play Store';
+                messageEl.textContent = 'Just a moment';
                 
                 // Show fallback button
                 fallbackBtn.style.display = 'inline-block';
@@ -233,9 +213,9 @@
             attemptAppOpen();
         } else {
             // On desktop, show Play Store button immediately
-            messageEl.textContent = 'This link is designed for mobile devices';
-            statusEl.textContent = 'Please scan this QR code with your phone';
-            document.querySelector('.spinner').style.display = 'none';
+            messageEl.textContent = 'Scan with your mobile device';
+            statusEl.textContent = '📱 This link works on phones';
+            document.querySelector('.dots').style.display = 'none';
             fallbackBtn.style.display = 'inline-block';
             fallbackBtn.href = playStoreUrl;
             fallbackBtn.textContent = 'View on Play Store';
