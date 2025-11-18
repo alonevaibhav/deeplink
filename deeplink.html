@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opening Creatoo...</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #9759C4 0%, #E1BEE7 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 24px;
+            padding: 40px 30px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(151, 89, 196, 0.3);
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            font-size: 64px;
+            margin-bottom: 20px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        h1 {
+            color: #9759C4;
+            font-size: 28px;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        p {
+            color: #545454;
+            font-size: 16px;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            margin: 20px auto;
+            border: 4px solid #E1BEE7;
+            border-top: 4px solid #9759C4;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .fallback-btn {
+            display: inline-block;
+            background: #9759C4;
+            color: white;
+            padding: 14px 32px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(151, 89, 196, 0.3);
+        }
+
+        .fallback-btn:hover {
+            background: #7D4AA3;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(151, 89, 196, 0.4);
+        }
+
+        .dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 24px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            background: #9759C4;
+            border-radius: 50%;
+            animation: bounce 1.4s ease-in-out infinite;
+        }
+
+        .dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes bounce {
+            0%, 80%, 100% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #9759C4, #E1BEE7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        #status {
+            color: #27AA1A;
+            font-weight: 600;
+            margin-top: 16px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🚀</div>
+        <h1>Opening Creatoo App...</h1>
+        <p id="message">Please wait while we redirect you</p>
+        
+        <div class="spinner"></div>
+        
+        <p id="status"></p>
+
+        <a href="#" id="fallbackBtn" class="fallback-btn" style="display: none;">
+            Open in Play Store
+        </a>
+
+        <div class="info-box">
+            <p><strong>App installed?</strong> It will open automatically</p>
+            <p><strong>Don't have the app?</strong> You'll be redirected to Play Store</p>
+        </div>
+    </div>
+
+    <script>
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const screen = urlParams.get('screen') || 'home';
+        const id = urlParams.get('id') || '';
+
+        // Build deep link URL
+        const deepLink = `creatoo://open?screen=${screen}${id ? '&id=' + id : ''}`;
+        
+        // Play Store URL
+        const playStoreUrl = 'https://play.google.com/store/apps/details?id=com.creatoo.app';
+
+        // Update status message
+        const statusEl = document.getElementById('status');
+        const messageEl = document.getElementById('message');
+        const fallbackBtn = document.getElementById('fallbackBtn');
+
+        // Log for debugging
+        console.log('Deep Link:', deepLink);
+        console.log('Screen:', screen);
+        console.log('ID:', id);
+
+        // Function to attempt app opening
+        function attemptAppOpen() {
+            statusEl.textContent = 'Attempting to open app...';
+            
+            // Try to open the app
+            window.location.href = deepLink;
+
+            // Set a timeout to redirect to Play Store if app doesn't open
+            setTimeout(() => {
+                statusEl.textContent = 'App not detected. Redirecting to Play Store...';
+                messageEl.textContent = 'Taking you to Google Play Store';
+                
+                // Show fallback button
+                fallbackBtn.style.display = 'inline-block';
+                fallbackBtn.href = playStoreUrl;
+
+                // Automatic redirect after showing button
+                setTimeout(() => {
+                    window.location.href = playStoreUrl;
+                }, 1500);
+            }, 2500);
+        }
+
+        // Detect if user is on mobile
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+        if (isMobile) {
+            // On mobile, attempt to open app immediately
+            attemptAppOpen();
+        } else {
+            // On desktop, show Play Store button immediately
+            messageEl.textContent = 'This link is designed for mobile devices';
+            statusEl.textContent = 'Please scan this QR code with your phone';
+            document.querySelector('.spinner').style.display = 'none';
+            fallbackBtn.style.display = 'inline-block';
+            fallbackBtn.href = playStoreUrl;
+            fallbackBtn.textContent = 'View on Play Store';
+        }
+
+        // Handle visibility change (when user switches apps)
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                // User switched to another app (likely your app opened!)
+                console.log('App likely opened successfully');
+            }
+        });
+    </script>
+</body>
+</html>
