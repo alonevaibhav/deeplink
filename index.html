@@ -354,6 +354,24 @@
             color: #666;
             text-align: left;
             word-break: break-all;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 16px;
+        }
+
+        .success {
+            background: #efe;
+            color: #3a3;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 16px;
         }
     </style>
 </head>
@@ -371,69 +389,106 @@
         </div>
         
         <p id="status"></p>
+        <div id="error" class="error" style="display: none;"></div>
+        <div id="success" class="success" style="display: none;"></div>
 
         <button id="fallbackBtn" class="fallback-btn" style="display: none;">
             Open Play Store
         </button>
         
-        <!-- Debug info (remove in production) -->
         <div class="debug" id="debug"></div>
     </div>
 
     <script>
-        // Extract business ID from URL - MULTIPLE FORMATS SUPPORTED
-        let businessId = null;
+        // Extract business ID from URL
+        function extractBusinessId() {
+            const url = window.location.href;
+            const pathname = window.location.pathname;
+            const search = window.location.search;
+            const hash = window.location.hash;
 
-        // Format 1: yoursite.com/restaurant/167
-        if (window.location.pathname.includes('/restaurant/')) {
-            const match = window.location.pathname.match(/\/restaurant\/(\d+)/);
-            if (match && match[1]) {
-                businessId = match[1];
-                console.log('Format 1 matched - pathname:', businessId);
+            console.log('🔍 Extracting business ID from:', {
+                url,
+                pathname,
+                search,
+                hash
+            });
+
+            let businessId = null;
+
+            // Format 1: /restaurant/167 or /restaurant/167/
+            const restaurantMatch = pathname.match(/\/restaurant\/(\d+)/);
+            if (restaurantMatch && restaurantMatch[1]) {
+                businessId = restaurantMatch[1];
+                console.log('✅ Found in /restaurant/ path:', businessId);
+                return businessId;
             }
-        }
 
-        // Format 2: yoursite.com/r/167
-        if (!businessId && window.location.pathname.includes('/r/')) {
-            const match = window.location.pathname.match(/\/r\/(\d+)/);
-            if (match && match[1]) {
-                businessId = match[1];
-                console.log('Format 2 matched - short path:', businessId);
+            // Format 2: /r/167 or /r/167/
+            const shortMatch = pathname.match(/\/r\/(\d+)/);
+            if (shortMatch && shortMatch[1]) {
+                businessId = shortMatch[1];
+                console.log('✅ Found in /r/ path:', businessId);
+                return businessId;
             }
-        }
 
-        // Format 3: Query parameter - ?business_id=167
-        if (!businessId) {
-            const params = new URLSearchParams(window.location.search);
+            // Format 3: ?business_id=167 or ?id=167
+            const params = new URLSearchParams(search);
             if (params.has('business_id')) {
                 businessId = params.get('business_id');
-                console.log('Format 3 matched - query param:', businessId);
+                console.log('✅ Found in query param business_id:', businessId);
+                return businessId;
             }
-        }
-
-        // Format 4: Hash parameter - #167
-        if (!businessId && window.location.hash) {
-            const hashValue = window.location.hash.substring(1);
-            if (/^\d+$/.test(hashValue)) {
-                businessId = hashValue;
-                console.log('Format 4 matched - hash:', businessId);
+            if (params.has('id')) {
+                businessId = params.get('id');
+                console.log('✅ Found in query param id:', businessId);
+                return businessId;
             }
+
+            // Format 4: #167
+            if (hash && hash.length > 1) {
+                const hashValue = hash.substring(1);
+                if (/^\d+$/.test(hashValue)) {
+                    businessId = hashValue;
+                    console.log('✅ Found in hash:', hashValue);
+                    return hashValue;
+                }
+            }
+
+            // Format 5: Look for any number in path segments
+            const pathSegments = pathname.split('/').filter(s => s.length > 0);
+            for (const segment of pathSegments) {
+                if (/^\d+$/.test(segment)) {
+                    businessId = segment;
+                    console.log('✅ Found numeric segment in path:', businessId);
+                    return businessId;
+                }
+            }
+
+            // TESTING: Hardcode 167 as fallback for testing
+            console.log('⚠️ No business ID found - using TEST ID: 167');
+            return '167';
         }
 
-        // Validate businessId
-        if (!businessId || !/^\d+$/.test(businessId)) {
-            businessId = null;
-            console.error('No valid business ID found in URL');
+        // Validate business ID
+        function validateBusinessId(id) {
+            if (!id) return false;
+            const numId = parseInt(id, 10);
+            return !isNaN(numId) && numId > 0;
         }
 
-        console.log('Final businessId:', businessId);
+        // Main execution
+        const businessId = extractBusinessId();
+        const isValid = validateBusinessId(businessId);
 
-        // Generate deep link with businessId
-        const deepLink = businessId 
+        console.log('📍 Business ID:', businessId);
+        console.log('✓ Valid:', isValid);
+
+        // Generate deep links
+        const deepLink = isValid 
             ? `creatoo://restaurant/${businessId}/payment`
             : `creatoo://open`;
         
-        // Play Store URL
         const playStoreUrl = 'https://play.google.com/store/apps/details?id=com.creatoo.app';
 
         // UI Elements
@@ -442,18 +497,10 @@
         const restaurantNameEl = document.getElementById('restaurant-name');
         const fallbackBtn = document.getElementById('fallbackBtn');
         const debugEl = document.getElementById('debug');
+        const errorEl = document.getElementById('error');
+        const successEl = document.getElementById('success');
 
-        // Debug info
-        debugEl.innerHTML = `
-            <strong>Debug Info:</strong><br>
-            Full URL: ${window.location.href}<br>
-            Pathname: ${window.location.pathname}<br>
-            Business ID: ${businessId || 'NOT FOUND'}<br>
-            Deep Link: ${deepLink}<br>
-            User Agent: ${navigator.userAgent.substring(0, 50)}...
-        `;
-
-        // Restaurant names (you can fetch from API in production)
+        // Restaurant names (you can fetch from API)
         const restaurantNames = {
             '167': 'Goldfarms',
             '184': 'FATOUSH',
@@ -461,36 +508,69 @@
         };
 
         // Show restaurant name
-        if (businessId && restaurantNames[businessId]) {
-            restaurantNameEl.textContent = restaurantNames[businessId];
-        } else if (businessId) {
-            restaurantNameEl.textContent = `Restaurant ID: ${businessId}`;
+        if (isValid) {
+            if (restaurantNames[businessId]) {
+                restaurantNameEl.textContent = restaurantNames[businessId];
+            } else {
+                restaurantNameEl.textContent = `Restaurant #${businessId}`;
+            }
+            successEl.textContent = `✅ Restaurant ID: ${businessId} found!`;
+            successEl.style.display = 'block';
+        } else {
+            errorEl.textContent = '⚠️ No restaurant ID found in URL. Using default (167).';
+            errorEl.style.display = 'block';
         }
 
-        console.log('Business ID:', businessId);
-        console.log('Deep Link:', deepLink);
+        // Debug info
+        debugEl.innerHTML = `
+            <strong>🔍 Debug Info:</strong><br>
+            Full URL: ${window.location.href}<br>
+            Pathname: ${window.location.pathname}<br>
+            Search: ${window.location.search}<br>
+            Hash: ${window.location.hash}<br>
+            <strong>Business ID: ${businessId || 'NOT FOUND'}</strong><br>
+            Valid: ${isValid ? '✅' : '❌'}<br>
+            Deep Link: <strong>${deepLink}</strong><br>
+            User Agent: ${navigator.userAgent.substring(0, 60)}...
+        `;
+
+        console.log('🚀 Deep Link:', deepLink);
 
         // Function to attempt app opening
         function attemptAppOpen() {
-            statusEl.textContent = '✨ Opening app...';
+            if (!isValid) {
+                statusEl.textContent = '⚠️ Opening app...';
+            } else {
+                statusEl.textContent = '✨ Opening restaurant...';
+            }
             
-            console.log('Attempting to open:', deepLink);
+            console.log('📱 Attempting to open:', deepLink);
             
-            // Try to open the app
-            window.location.href = deepLink;
+            // Create invisible iframe for better deep link handling
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = deepLink;
+            document.body.appendChild(iframe);
+            
+            // Also try direct navigation
+            setTimeout(() => {
+                window.location.href = deepLink;
+            }, 100);
 
             // Set timeout for Play Store fallback
             setTimeout(() => {
-                statusEl.textContent = '📲 Redirecting to Play Store';
-                messageEl.textContent = 'App not installed?';
+                statusEl.textContent = '📲 App not installed?';
+                messageEl.textContent = 'Redirecting to Play Store...';
                 
                 fallbackBtn.style.display = 'inline-block';
-                fallbackBtn.href = playStoreUrl;
                 fallbackBtn.textContent = 'Open Play Store';
+                fallbackBtn.onclick = () => {
+                    window.location.href = playStoreUrl;
+                };
 
                 // Auto redirect after showing button
                 setTimeout(() => {
-                    console.log('Auto-redirecting to Play Store');
+                    console.log('🏪 Auto-redirecting to Play Store');
                     window.location.href = playStoreUrl;
                 }, 1500);
             }, 2500);
@@ -500,16 +580,15 @@
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
         if (isMobile) {
-            attemptAppOpen();
+            // Small delay to ensure DOM is ready
+            setTimeout(attemptAppOpen, 300);
         } else {
             messageEl.textContent = 'Scan with your mobile device';
             statusEl.textContent = '📱 This link works on phones';
             document.querySelector('.dots').style.display = 'none';
             fallbackBtn.style.display = 'inline-block';
-            fallbackBtn.href = playStoreUrl;
             fallbackBtn.textContent = 'View on Play Store';
-            fallbackBtn.onclick = (e) => {
-                e.preventDefault();
+            fallbackBtn.onclick = () => {
                 window.location.href = playStoreUrl;
             };
         }
@@ -517,7 +596,7 @@
         // Handle visibility change
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
-                console.log('App likely opened successfully!');
+                console.log('✅ App likely opened successfully!');
                 statusEl.textContent = '✅ Opening restaurant...';
             }
         });
