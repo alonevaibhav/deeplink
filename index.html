@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -226,6 +226,241 @@
             if (document.hidden) {
                 // User switched to another app (likely your app opened!)
                 console.log('App likely opened successfully');
+            }
+        });
+    </script>
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opening Creatoo Restaurant...</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #9759C4 0%, #E1BEE7 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 24px;
+            padding: 40px 30px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(151, 89, 196, 0.3);
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .logo {
+            font-size: 80px;
+            margin-bottom: 24px;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        h1 {
+            color: #9759C4;
+            font-size: 32px;
+            margin-bottom: 16px;
+            font-weight: 700;
+        }
+        
+        p {
+            color: #9C9C9C;
+            font-size: 16px;
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+        
+        .fallback-btn {
+            display: inline-block;
+            background: #9759C4;
+            color: white;
+            padding: 14px 32px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(151, 89, 196, 0.3);
+        }
+        
+        .fallback-btn:hover {
+            background: #7D4AA3;
+            transform: translateY(-2px);
+        }
+        
+        .dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 24px;
+        }
+        
+        .dot {
+            width: 12px;
+            height: 12px;
+            background: #9759C4;
+            border-radius: 50%;
+            animation: bounce 1.4s ease-in-out infinite;
+        }
+        
+        .dot:nth-child(1) { animation-delay: 0s; }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1.2); opacity: 1; }
+        }
+        
+        #status {
+            color: #9759C4;
+            font-weight: 500;
+            margin-top: 20px;
+            font-size: 15px;
+            min-height: 20px;
+        }
+        
+        .debug {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #666;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🍽️</div>
+        <h1>Opening Creatoo</h1>
+        <p id="message">Please wait a moment</p>
+        <p id="restaurant-name" style="font-weight: 600; color: #9759C4;"></p>
+        
+        <div class="dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+        
+        <p id="status"></p>
+
+        <a href="#" id="fallbackBtn" class="fallback-btn" style="display: none;">
+            Open Play Store
+        </a>
+        
+        <!-- Debug info (remove in production) -->
+        <div class="debug" id="debug"></div>
+    </div>
+
+    <script>
+        // Extract business ID from URL
+        // URL format: yoursite.com/restaurant/167
+        const pathParts = window.location.pathname.split('/');
+        const businessId = pathParts[pathParts.length - 1] || pathParts[pathParts.length - 2];
+        
+        // Generate deep link with business ID
+        const deepLink = `creatoo://restaurant/${businessId}/payment`;
+        
+        // Play Store URL
+        const playStoreUrl = 'https://play.google.com/store/apps/details?id=com.creatoo.app';
+
+        // UI Elements
+        const statusEl = document.getElementById('status');
+        const messageEl = document.getElementById('message');
+        const restaurantNameEl = document.getElementById('restaurant-name');
+        const fallbackBtn = document.getElementById('fallbackBtn');
+        const debugEl = document.getElementById('debug');
+
+        // Debug info
+        debugEl.innerHTML = `
+            <strong>Debug Info:</strong><br>
+            URL: ${window.location.href}<br>
+            Business ID: ${businessId}<br>
+            Deep Link: ${deepLink}
+        `;
+
+        // Restaurant names (you can fetch from API in production)
+        const restaurantNames = {
+            '167': 'Goldfarms',
+            '184': 'FATOUSH',
+            '476': 'Sarovarr Multicuisine Restaurant'
+        };
+
+        // Show restaurant name
+        if (restaurantNames[businessId]) {
+            restaurantNameEl.textContent = restaurantNames[businessId];
+        }
+
+        console.log('Business ID:', businessId);
+        console.log('Deep Link:', deepLink);
+
+        // Function to attempt app opening
+        function attemptAppOpen() {
+            statusEl.textContent = '✨ Opening app...';
+            
+            // Try to open the app
+            window.location.href = deepLink;
+
+            // Set timeout for Play Store fallback
+            setTimeout(() => {
+                statusEl.textContent = '📲 Redirecting to Play Store';
+                messageEl.textContent = 'App not installed?';
+                
+                fallbackBtn.style.display = 'inline-block';
+                fallbackBtn.href = playStoreUrl;
+
+                // Auto redirect
+                setTimeout(() => {
+                    window.location.href = playStoreUrl;
+                }, 1500);
+            }, 2500);
+        }
+
+        // Detect mobile
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+        if (isMobile) {
+            attemptAppOpen();
+        } else {
+            messageEl.textContent = 'Scan with your mobile device';
+            statusEl.textContent = '📱 This link works on phones';
+            document.querySelector('.dots').style.display = 'none';
+            fallbackBtn.style.display = 'inline-block';
+            fallbackBtn.href = playStoreUrl;
+            fallbackBtn.textContent = 'View on Play Store';
+        }
+
+        // Handle visibility change
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                console.log('App likely opened successfully!');
+                statusEl.textContent = '✅ Opening restaurant...';
             }
         });
     </script>
