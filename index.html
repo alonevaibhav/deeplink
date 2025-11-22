@@ -231,7 +231,6 @@
     </script>
 </body>
 </html> -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -400,6 +399,17 @@
     </div>
 
     <script>
+        // Configuration
+        const PACKAGE_NAME = 'com.creatoo.app';
+        const PLAY_STORE_URL = `https://play.google.com/store/apps/details?id=${PACKAGE_NAME}`;
+        
+        // Restaurant names mapping
+        const RESTAURANT_NAMES = {
+            '167': 'Goldfarms',
+            '184': 'FATOUSH',
+            '476': 'Sarovarr Multicuisine Restaurant'
+        };
+
         // Extract business ID from URL
         function extractBusinessId() {
             const url = window.location.href;
@@ -477,19 +487,27 @@
             return !isNaN(numId) && numId > 0;
         }
 
+        // Detect platform
+        function getPlatform() {
+            const ua = navigator.userAgent;
+            if (/android/i.test(ua)) return 'android';
+            if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) return 'ios';
+            return 'desktop';
+        }
+
         // Main execution
         const businessId = extractBusinessId();
         const isValid = validateBusinessId(businessId);
+        const platform = getPlatform();
 
         console.log('📍 Business ID:', businessId);
         console.log('✓ Valid:', isValid);
+        console.log('📱 Platform:', platform);
 
         // Generate deep links
-        const deepLink = isValid 
+        const standardDeepLink = isValid 
             ? `creatoo://restaurant/${businessId}/payment`
             : `creatoo://open`;
-        
-        const playStoreUrl = 'https://play.google.com/store/apps/details?id=com.creatoo.app';
 
         // UI Elements
         const statusEl = document.getElementById('status');
@@ -500,17 +518,10 @@
         const errorEl = document.getElementById('error');
         const successEl = document.getElementById('success');
 
-        // Restaurant names (you can fetch from API)
-        const restaurantNames = {
-            '167': 'Goldfarms',
-            '184': 'FATOUSH',
-            '476': 'Sarovarr Multicuisine Restaurant'
-        };
-
         // Show restaurant name
         if (isValid) {
-            if (restaurantNames[businessId]) {
-                restaurantNameEl.textContent = restaurantNames[businessId];
+            if (RESTAURANT_NAMES[businessId]) {
+                restaurantNameEl.textContent = RESTAURANT_NAMES[businessId];
             } else {
                 restaurantNameEl.textContent = `Restaurant #${businessId}`;
             }
@@ -519,6 +530,83 @@
         } else {
             errorEl.textContent = '⚠️ No restaurant ID found in URL. Using default (167).';
             errorEl.style.display = 'block';
+        }
+
+        // Function to attempt app opening
+        function attemptAppOpen() {
+            if (!isValid) {
+                statusEl.textContent = '⚠️ Opening app...';
+            } else {
+                statusEl.textContent = '✨ Opening restaurant...';
+            }
+            
+            console.log('📱 Attempting to open app...');
+
+            if (platform === 'android') {
+                // Android Intent URI format - most reliable for Android
+                const intentUri = `intent://restaurant/${businessId}/payment#Intent;` +
+                                  `scheme=creatoo;` +
+                                  `package=${PACKAGE_NAME};` +
+                                  `S.browser_fallback_url=${encodeURIComponent(PLAY_STORE_URL)};` +
+                                  `end;`;
+                
+                console.log('🤖 Using Android Intent URI:', intentUri);
+                
+                // Try Intent URI first (this is the most reliable)
+                window.location.href = intentUri;
+                
+                // Backup: Also try standard deep link after a delay
+                setTimeout(() => {
+                    console.log('🔄 Backup: Trying standard deep link');
+                    window.location.href = standardDeepLink;
+                }, 500);
+
+            } else if (platform === 'ios') {
+                // iOS: Use standard deep link with iframe trick
+                console.log('🍎 Using iOS deep link');
+                
+                // Create invisible iframe
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = standardDeepLink;
+                document.body.appendChild(iframe);
+                
+                // Also try direct navigation
+                setTimeout(() => {
+                    window.location.href = standardDeepLink;
+                }, 100);
+
+            } else {
+                // Desktop fallback
+                console.log('💻 Desktop detected - showing Play Store link');
+                showPlayStoreFallback();
+                return;
+            }
+
+            // Set timeout for Play Store fallback
+            setTimeout(() => {
+                showPlayStoreFallback();
+            }, 2500);
+        }
+
+        // Show Play Store fallback
+        function showPlayStoreFallback() {
+            statusEl.textContent = '📲 App not installed?';
+            messageEl.textContent = 'Redirecting to Play Store...';
+            
+            fallbackBtn.style.display = 'inline-block';
+            fallbackBtn.textContent = platform === 'desktop' ? 'View on Play Store' : 'Install App';
+            fallbackBtn.onclick = () => {
+                window.location.href = PLAY_STORE_URL;
+            };
+
+            // Auto redirect for mobile only
+            if (platform !== 'desktop') {
+                setTimeout(() => {
+                    console.log('🏪 Auto-redirecting to Play Store');
+                    window.location.href = PLAY_STORE_URL;
+                }, 1500);
+            }
         }
 
         // Debug info
@@ -530,75 +618,34 @@
             Hash: ${window.location.hash}<br>
             <strong>Business ID: ${businessId || 'NOT FOUND'}</strong><br>
             Valid: ${isValid ? '✅' : '❌'}<br>
-            Deep Link: <strong>${deepLink}</strong><br>
+            Platform: ${platform}<br>
+            Deep Link: <strong>${standardDeepLink}</strong><br>
+            ${platform === 'android' ? `Intent URI: intent://restaurant/${businessId}/payment#Intent;scheme=creatoo;package=${PACKAGE_NAME};end<br>` : ''}
             User Agent: ${navigator.userAgent.substring(0, 60)}...
         `;
 
-        console.log('🚀 Deep Link:', deepLink);
-
-        // Function to attempt app opening
-        function attemptAppOpen() {
-            if (!isValid) {
-                statusEl.textContent = '⚠️ Opening app...';
-            } else {
-                statusEl.textContent = '✨ Opening restaurant...';
-            }
-            
-            console.log('📱 Attempting to open:', deepLink);
-            
-            // Create invisible iframe for better deep link handling
-            const iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            iframe.src = deepLink;
-            document.body.appendChild(iframe);
-            
-            // Also try direct navigation
-            setTimeout(() => {
-                window.location.href = deepLink;
-            }, 100);
-
-            // Set timeout for Play Store fallback
-            setTimeout(() => {
-                statusEl.textContent = '📲 App not installed?';
-                messageEl.textContent = 'Redirecting to Play Store...';
-                
-                fallbackBtn.style.display = 'inline-block';
-                fallbackBtn.textContent = 'Open Play Store';
-                fallbackBtn.onclick = () => {
-                    window.location.href = playStoreUrl;
-                };
-
-                // Auto redirect after showing button
-                setTimeout(() => {
-                    console.log('🏪 Auto-redirecting to Play Store');
-                    window.location.href = playStoreUrl;
-                }, 1500);
-            }, 2500);
-        }
-
-        // Detect mobile
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-        if (isMobile) {
-            // Small delay to ensure DOM is ready
-            setTimeout(attemptAppOpen, 300);
-        } else {
+        // Execute based on platform
+        if (platform === 'desktop') {
             messageEl.textContent = 'Scan with your mobile device';
             statusEl.textContent = '📱 This link works on phones';
             document.querySelector('.dots').style.display = 'none';
-            fallbackBtn.style.display = 'inline-block';
-            fallbackBtn.textContent = 'View on Play Store';
-            fallbackBtn.onclick = () => {
-                window.location.href = playStoreUrl;
-            };
+            showPlayStoreFallback();
+        } else {
+            // Mobile: attempt app open after small delay
+            setTimeout(attemptAppOpen, 300);
         }
 
-        // Handle visibility change
+        // Handle visibility change (detect if app opened)
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
                 console.log('✅ App likely opened successfully!');
                 statusEl.textContent = '✅ Opening restaurant...';
             }
+        });
+
+        // Handle page focus (alternative detection)
+        window.addEventListener('blur', () => {
+            console.log('✅ Page lost focus - app may have opened');
         });
     </script>
 </body>
