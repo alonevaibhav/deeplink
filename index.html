@@ -1,236 +1,6 @@
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Opening Creatoo...</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<!-- 
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #9759C4 0%, #E1BEE7 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
 
-        .container {
-            background: white;
-            border-radius: 24px;
-            padding: 40px 30px;
-            max-width: 400px;
-            width: 100%;
-            text-align: center;
-            box-shadow: 0 20px 60px rgba(151, 89, 196, 0.3);
-            animation: fadeIn 0.5s ease-in;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .logo {
-            font-size: 80px;
-            margin-bottom: 24px;
-            filter: drop-shadow(0 4px 12px rgba(151, 89, 196, 0.3));
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0px);
-            }
-            50% {
-                transform: translateY(-20px);
-            }
-        }
-
-        h1 {
-            color: #9759C4;
-            font-size: 32px;
-            margin-bottom: 16px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        p {
-            color: #9C9C9C;
-            font-size: 16px;
-            margin-bottom: 8px;
-            line-height: 1.6;
-        }
-
-        .fallback-btn {
-            display: inline-block;
-            background: #9759C4;
-            color: white;
-            padding: 14px 32px;
-            border-radius: 12px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 16px;
-            margin-top: 20px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(151, 89, 196, 0.3);
-        }
-
-        .fallback-btn:hover {
-            background: #7D4AA3;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(151, 89, 196, 0.4);
-        }
-
-        .dots {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 24px;
-        }
-
-        .dot {
-            width: 12px;
-            height: 12px;
-            background: #9759C4;
-            border-radius: 50%;
-            animation: bounce 1.4s ease-in-out infinite;
-        }
-
-        .dot:nth-child(1) {
-            animation-delay: 0s;
-        }
-
-        .dot:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .dot:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-
-        @keyframes bounce {
-            0%, 80%, 100% {
-                transform: scale(0.8);
-                opacity: 0.5;
-            }
-            40% {
-                transform: scale(1.2);
-                opacity: 1;
-            }
-        }
-
-        .gradient-text {
-            background: linear-gradient(135deg, #9759C4, #E1BEE7);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        #status {
-            color: #9759C4;
-            font-weight: 500;
-            margin-top: 20px;
-            font-size: 15px;
-            min-height: 20px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="logo">🚀</div>
-        <h1 class="gradient-text">Opening Creatoo</h1>
-        <p id="message">Please wait a moment</p>
-        
-        <div class="dots">
-            <div class="dot"></div>
-            <div class="dot"></div>
-            <div class="dot"></div>
-        </div>
-        
-        <p id="status"></p>
-
-        <a href="#" id="fallbackBtn" class="fallback-btn" style="display: none;">
-            Open Play Store
-        </a>
-    </div>
-
-    <script>
-        // Simple deep link - just opens the app
-        const deepLink = 'creatoo://open';
-        
-        // Play Store URL
-        const playStoreUrl = 'https://play.google.com/store/apps/details?id=com.creatoo.app';
-
-        // Update status message
-        const statusEl = document.getElementById('status');
-        const messageEl = document.getElementById('message');
-        const fallbackBtn = document.getElementById('fallbackBtn');
-
-        // Log for debugging
-        console.log('Deep Link:', deepLink);
-
-        // Function to attempt app opening
-        function attemptAppOpen() {
-            statusEl.textContent = '✨ Opening app...';
-            
-            // Try to open the app
-            window.location.href = deepLink;
-
-            // Set a timeout to redirect to Play Store if app doesn't open
-            setTimeout(() => {
-                statusEl.textContent = '📲 Redirecting to Play Store';
-                messageEl.textContent = 'Just a moment';
-                
-                // Show fallback button
-                fallbackBtn.style.display = 'inline-block';
-                fallbackBtn.href = playStoreUrl;
-
-                // Automatic redirect after showing button
-                setTimeout(() => {
-                    window.location.href = playStoreUrl;
-                }, 1500);
-            }, 2500);
-        }
-
-        // Detect if user is on mobile
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-        if (isMobile) {
-            // On mobile, attempt to open app immediately
-            attemptAppOpen();
-        } else {
-            // On desktop, show Play Store button immediately
-            messageEl.textContent = 'Scan with your mobile device';
-            statusEl.textContent = '📱 This link works on phones';
-            document.querySelector('.dots').style.display = 'none';
-            fallbackBtn.style.display = 'inline-block';
-            fallbackBtn.href = playStoreUrl;
-            fallbackBtn.textContent = 'View on Play Store';
-        }
-
-        // Handle visibility change (when user switches apps)
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                // User switched to another app (likely your app opened!)
-                console.log('App likely opened successfully');
-            }
-        });
-    </script>
-</body>
-</html> -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -646,6 +416,548 @@
         // Handle page focus (alternative detection)
         window.addEventListener('blur', () => {
             console.log('✅ Page lost focus - app may have opened');
+        });
+    </script>
+</body>
+</html> -->
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opening The Waiter...</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #2196F3 0%, #64B5F6 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 24px;
+            padding: 40px 30px;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(33, 150, 243, 0.3);
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .logo {
+            font-size: 90px;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+            filter: drop-shadow(0 4px 8px rgba(33, 150, 243, 0.2));
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        h1 {
+            color: #2196F3;
+            font-size: 34px;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        p {
+            color: #9C9C9C;
+            font-size: 16px;
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+        
+        .table-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 16px;
+            font-size: 24px;
+            font-weight: 700;
+            margin: 16px 0;
+            box-shadow: 0 8px 24px rgba(33, 150, 243, 0.3);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .fallback-btn {
+            display: inline-block;
+            background: #2196F3;
+            color: white;
+            padding: 16px 36px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            margin-top: 24px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(33, 150, 243, 0.3);
+            border: none;
+            cursor: pointer;
+        }
+        
+        .fallback-btn:hover {
+            background: #1976D2;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+        }
+        
+        .dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 28px;
+        }
+        
+        .dot {
+            width: 12px;
+            height: 12px;
+            background: #2196F3;
+            border-radius: 50%;
+            animation: bounce 1.4s ease-in-out infinite;
+        }
+        
+        .dot:nth-child(1) { animation-delay: 0s; }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1.2); opacity: 1; }
+        }
+        
+        #status {
+            color: #2196F3;
+            font-weight: 500;
+            margin-top: 24px;
+            font-size: 15px;
+            min-height: 20px;
+        }
+        
+        .debug {
+            margin-top: 24px;
+            padding: 12px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            font-size: 11px;
+            color: #666;
+            text-align: left;
+            word-break: break-all;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 14px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 14px;
+            border: 1px solid #ef5350;
+        }
+
+        .success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 14px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 14px;
+            border: 1px solid #66bb6a;
+        }
+
+        .info-card {
+            background: #f5f5f5;
+            padding: 16px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border: 2px solid #e0e0e0;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 8px 0;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🍽️</div>
+        <h1>The Waiter</h1>
+        <p class="subtitle">Restaurant Management System</p>
+        <p id="message">Connecting to your table...</p>
+        
+        <div id="table-info" style="display: none;">
+            <div class="table-badge">
+                🪑 Table <span id="table-number"></span>
+            </div>
+        </div>
+        
+        <div class="dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+        
+        <p id="status"></p>
+        <div id="error" class="error" style="display: none;"></div>
+        <div id="success" class="success" style="display: none;"></div>
+
+        <button id="fallbackBtn" class="fallback-btn" style="display: none;">
+            📲 Download The Waiter App
+        </button>
+        
+        <div class="debug" id="debug"></div>
+    </div>
+
+    <script>
+        // ============================================
+        // THE WAITER APP CONFIGURATION
+        // ============================================
+        const PACKAGE_NAME = 'com.example.thewaiter';
+        const APP_SCHEME = 'thewaiter';
+        const PLAY_STORE_URL = `https://play.google.com/store/apps/details?id=${PACKAGE_NAME}`;
+        
+        // ============================================
+        // EXTRACT TABLE ID FROM URL
+        // ============================================
+        function extractTableId() {
+            const url = window.location.href;
+            const pathname = window.location.pathname;
+            const search = window.location.search;
+            const hash = window.location.hash;
+
+            console.log('🔍 Extracting table ID from:', {
+                url,
+                pathname,
+                search,
+                hash
+            });
+
+            let tableId = null;
+
+            // Format 1: /table/123 or /table/123/
+            const tableMatch = pathname.match(/\/table\/(\w+)/);
+            if (tableMatch && tableMatch[1]) {
+                tableId = tableMatch[1];
+                console.log('✅ Found in /table/ path:', tableId);
+                return tableId;
+            }
+
+            // Format 2: /t/123 (short URL)
+            const shortMatch = pathname.match(/\/t\/(\w+)/);
+            if (shortMatch && shortMatch[1]) {
+                tableId = shortMatch[1];
+                console.log('✅ Found in /t/ path:', tableId);
+                return tableId;
+            }
+
+            // Format 3: ?table_id=123 or ?table=123
+            const params = new URLSearchParams(search);
+            if (params.has('table_id')) {
+                tableId = params.get('table_id');
+                console.log('✅ Found in query param table_id:', tableId);
+                return tableId;
+            }
+            if (params.has('table')) {
+                tableId = params.get('table');
+                console.log('✅ Found in query param table:', tableId);
+                return tableId;
+            }
+            if (params.has('id')) {
+                tableId = params.get('id');
+                console.log('✅ Found in query param id:', tableId);
+                return tableId;
+            }
+
+            // Format 4: #123 (hash fragment)
+            if (hash && hash.length > 1) {
+                const hashValue = hash.substring(1);
+                if (/^[\w-]+$/.test(hashValue)) {
+                    tableId = hashValue;
+                    console.log('✅ Found in hash:', hashValue);
+                    return hashValue;
+                }
+            }
+
+            // Format 5: Look for any alphanumeric segment in path
+            const pathSegments = pathname.split('/').filter(s => s.length > 0);
+            for (const segment of pathSegments) {
+                if (/^[\w-]+$/.test(segment) && segment !== 'table' && segment !== 't') {
+                    tableId = segment;
+                    console.log('✅ Found segment in path:', tableId);
+                    return tableId;
+                }
+            }
+
+            console.log('⚠️ No table ID found in URL');
+            return null;
+        }
+
+        // ============================================
+        // VALIDATE TABLE ID
+        // ============================================
+        function validateTableId(id) {
+            if (!id) return false;
+            // Accept alphanumeric table IDs (e.g., "123", "A5", "T-10")
+            return /^[\w-]+$/.test(id) && id.length > 0;
+        }
+
+        // ============================================
+        // DETECT PLATFORM
+        // ============================================
+        function getPlatform() {
+            const ua = navigator.userAgent;
+            if (/android/i.test(ua)) return 'android';
+            if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) return 'ios';
+            return 'desktop';
+        }
+
+        // ============================================
+        // GENERATE DEEP LINKS
+        // ============================================
+        function generateDeepLinks(tableId) {
+            const links = {};
+
+            if (tableId) {
+                // Format 1: thewaiter://table/123
+                links.format1 = `${APP_SCHEME}://table/${tableId}`;
+                
+                // Format 2: thewaiter://user?table_id=123
+                links.format2 = `${APP_SCHEME}://user?table_id=${tableId}`;
+                
+                // Format 3: thewaiter://qr/table/123
+                links.format3 = `${APP_SCHEME}://qr/table/${tableId}`;
+                
+                // Format 4: thewaiter://open?table_id=123
+                links.format4 = `${APP_SCHEME}://open?table_id=${tableId}`;
+                
+                // Primary link (use format 1 as default)
+                links.primary = links.format1;
+            } else {
+                // Generic app open link
+                links.primary = `${APP_SCHEME}://open`;
+            }
+
+            return links;
+        }
+
+        // ============================================
+        // MAIN EXECUTION
+        // ============================================
+        const tableId = extractTableId();
+        const isValid = validateTableId(tableId);
+        const platform = getPlatform();
+        const deepLinks = generateDeepLinks(tableId);
+
+        console.log('📊 Deep Link Info:', {
+            tableId,
+            isValid,
+            platform,
+            deepLinks
+        });
+
+        // ============================================
+        // UI ELEMENTS
+        // ============================================
+        const statusEl = document.getElementById('status');
+        const messageEl = document.getElementById('message');
+        const tableInfoEl = document.getElementById('table-info');
+        const tableNumberEl = document.getElementById('table-number');
+        const fallbackBtn = document.getElementById('fallbackBtn');
+        const debugEl = document.getElementById('debug');
+        const errorEl = document.getElementById('error');
+        const successEl = document.getElementById('success');
+
+        // ============================================
+        // UPDATE UI WITH TABLE INFO
+        // ============================================
+        if (isValid && tableId) {
+            tableInfoEl.style.display = 'block';
+            tableNumberEl.textContent = tableId;
+            successEl.textContent = `✅ Table ${tableId} detected! Opening app...`;
+            successEl.style.display = 'block';
+            messageEl.textContent = 'Preparing your table experience';
+        } else {
+            messageEl.textContent = 'Opening The Waiter app...';
+            errorEl.textContent = '⚠️ No table ID found. Opening app without table context.';
+            errorEl.style.display = 'block';
+        }
+
+        // ============================================
+        // ATTEMPT TO OPEN APP
+        // ============================================
+        function attemptAppOpen() {
+            const primaryLink = deepLinks.primary;
+            
+            console.log('📱 Attempting to open app with:', primaryLink);
+            statusEl.textContent = isValid ? '✨ Opening your table...' : '📱 Opening app...';
+
+            if (platform === 'android') {
+                // Android Intent URI - Most reliable for Android
+                const intentUri = isValid 
+                    ? `intent://table/${tableId}#Intent;scheme=${APP_SCHEME};package=${PACKAGE_NAME};S.browser_fallback_url=${encodeURIComponent(PLAY_STORE_URL)};end;`
+                    : `intent://open#Intent;scheme=${APP_SCHEME};package=${PACKAGE_NAME};S.browser_fallback_url=${encodeURIComponent(PLAY_STORE_URL)};end;`;
+                
+                console.log('🤖 Android Intent URI:', intentUri);
+                
+                // Try Intent URI (most reliable)
+                window.location.href = intentUri;
+                
+                // Backup: Try standard deep link
+                setTimeout(() => {
+                    console.log('🔄 Backup: Trying standard deep link');
+                    window.location.href = primaryLink;
+                }, 500);
+
+                // Try all formats as fallbacks
+                if (isValid) {
+                    setTimeout(() => {
+                        console.log('🔄 Trying format 2');
+                        window.location.href = deepLinks.format2;
+                    }, 1000);
+                    
+                    setTimeout(() => {
+                        console.log('🔄 Trying format 4');
+                        window.location.href = deepLinks.format4;
+                    }, 1500);
+                }
+
+            } else if (platform === 'ios') {
+                // iOS: Use iframe trick + direct navigation
+                console.log('🍎 iOS deep link strategy');
+                
+                // Create invisible iframe
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = primaryLink;
+                document.body.appendChild(iframe);
+                
+                // Direct navigation after short delay
+                setTimeout(() => {
+                    window.location.href = primaryLink;
+                }, 100);
+
+            } else {
+                // Desktop
+                console.log('💻 Desktop detected - showing download link');
+                showPlayStoreFallback();
+                return;
+            }
+
+            // Show fallback after timeout
+            setTimeout(() => {
+                showPlayStoreFallback();
+            }, 2500);
+        }
+
+        // ============================================
+        // SHOW PLAY STORE FALLBACK
+        // ============================================
+        function showPlayStoreFallback() {
+            statusEl.textContent = '📲 App not installed?';
+            messageEl.textContent = 'Get The Waiter app to continue';
+            
+            fallbackBtn.style.display = 'inline-block';
+            fallbackBtn.onclick = () => {
+                window.location.href = PLAY_STORE_URL;
+            };
+
+            // Auto-redirect on mobile
+            if (platform !== 'desktop') {
+                setTimeout(() => {
+                    console.log('🏪 Redirecting to Play Store');
+                    window.location.href = PLAY_STORE_URL;
+                }, 2000);
+            }
+        }
+
+        // ============================================
+        // DEBUG INFO
+        // ============================================
+        debugEl.innerHTML = `
+            <strong>🔍 Debug Information</strong><br><br>
+            <strong>URL Details:</strong><br>
+            Full URL: ${window.location.href}<br>
+            Pathname: ${window.location.pathname}<br>
+            Search: ${window.location.search || '(none)'}<br>
+            Hash: ${window.location.hash || '(none)'}<br><br>
+            <strong>Extracted Info:</strong><br>
+            Table ID: <strong>${tableId || 'NOT FOUND'}</strong><br>
+            Valid: ${isValid ? '✅ Yes' : '❌ No'}<br>
+            Platform: <strong>${platform}</strong><br><br>
+            <strong>Deep Links:</strong><br>
+            Primary: ${deepLinks.primary}<br>
+            ${isValid ? `Format 2: ${deepLinks.format2}<br>Format 4: ${deepLinks.format4}<br>` : ''}
+            <br><strong>Package:</strong> ${PACKAGE_NAME}<br>
+            User Agent: ${navigator.userAgent.substring(0, 80)}...
+        `;
+
+        // ============================================
+        // EXECUTE BASED ON PLATFORM
+        // ============================================
+        if (platform === 'desktop') {
+            messageEl.textContent = 'Scan this QR code on your mobile device';
+            statusEl.textContent = '📱 This link works on phones';
+            document.querySelector('.dots').style.display = 'none';
+            showPlayStoreFallback();
+        } else {
+            // Mobile: Attempt app open after delay
+            setTimeout(attemptAppOpen, 400);
+        }
+
+        // ============================================
+        // DETECT IF APP OPENED SUCCESSFULLY
+        // ============================================
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                console.log('✅ App opened successfully!');
+                statusEl.textContent = '✅ Redirecting to app...';
+                successEl.textContent = '✅ App opened successfully!';
+                successEl.style.display = 'block';
+            }
+        });
+
+        window.addEventListener('blur', () => {
+            console.log('✅ Page lost focus - app likely opened');
         });
     </script>
 </body>
